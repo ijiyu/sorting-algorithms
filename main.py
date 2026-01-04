@@ -2,6 +2,7 @@ from PIL import Image, ImageDraw
 import random
 import os
 import glob
+import subprocess
 
 SCREEN_WIDTH = 2560
 SCREEN_HEIGHT = 1440
@@ -75,9 +76,15 @@ def bubble_sort():
         draw_bars(bars, f"{iteration}.jpg")
         iteration += 1
 
+def build_video():
+    subprocess.run(
+        ["powershell", "-ExecutionPolicy", "Bypass", "-File", "build_video.ps1"],
+        check=True
+    )
 
 def main():
     bubble_sort()
+    build_video()
 
 
 if __name__ == "__main__":
