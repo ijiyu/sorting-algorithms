@@ -7,7 +7,9 @@ import subprocess
 SCREEN_WIDTH = 2560
 SCREEN_HEIGHT = 1440
 BACKGROUND_COLOR = "#000000"
-BAR_COLOR = "#ffffff"
+DEFAULT_COLOR = "#ffffff"
+SELECTED_COLOR = "#ff0000"
+FINISHED_COLOR = "#00ff00"
 BAR_WIDTH = 40
 BAR_XPADDING = 5
 
@@ -28,59 +30,72 @@ class Bar:
         canvas.rectangle(shape, fill=self.color)
 
 
-def draw_bars(bars, filename):
-    output_dir = "frames"
+def draw_bars(bars, filename, dir):
     image = Image.new("RGB", (SCREEN_WIDTH, SCREEN_HEIGHT), BACKGROUND_COLOR)
     canvas = ImageDraw.Draw(image)
     for bar in bars:
         bar.draw(canvas)
-    image.save(os.path.join(output_dir, filename))
+    image.save(os.path.join(dir, filename))
 
 
-def bubble_sort():
+def initialize(x_positions, heights, bars):
     x_positions = list(range(0, SCREEN_WIDTH, BAR_WIDTH))
     heights = [(x_position+BAR_WIDTH)*0.5 for x_position in x_positions]
     random.shuffle(heights)
 
     bars = [
-        Bar(BAR_WIDTH, h, x, BAR_COLOR, BAR_XPADDING)
+        Bar(BAR_WIDTH, h, x, DEFAULT_COLOR, BAR_XPADDING)
         for x, h in zip(x_positions, heights)
     ]
 
-    iteration = 0
-    output_dir = "frames"
-    os.makedirs(output_dir, exist_ok=True)
-    for file_path in glob.glob(os.path.join(output_dir, "*")):
+
+def prepare_folder(dir):
+    os.makedirs(dir, exist_ok=True)
+    for file_path in glob.glob(os.path.join(dir, "*")):
         if os.path.isfile(file_path):
             os.remove(file_path)
+
+
+def finish(bars):
+    for bar in bars:
+        bars.color = FINISHED_COLOR
+        draw_bars(bars, f"{frame}.jpg")
+        frame += 1
+
+
+def bubble_sort():
+    x_positions, heights, bars = None
+    initialize(x_positions, heights, bars)
+
+    frame = 0
+    output_dir = "frames"
+
+    prepare_folder(output_dir)
     draw_bars(bars, "0.jpg")
 
     for _ in range(len(bars)-1):
         done = True
         for i in range(len(bars)-1):
-            bars[i].color = "#ff0000"
-            bars[i+1].color = "#ff0000"
+            bars[i].color, bars[i+1].color = SELECTED_COLOR, SELECTED_COLOR
             if bars[i].height > bars[i+1].height:
                 bars[i].height, bars[i+1].height = bars[i+1].height, bars[i].height
                 done = False
-            draw_bars(bars, f"{iteration}.jpg")
+            draw_bars(bars, f"{frame}.jpg", output_dir)
 
-            iteration += 1
-            bars[i].color = "#ffffff"
-            bars[i+1].color = "#ffffff"
+            frame += 1
+            bars[i].color, bars[i+1].color = DEFAULT_COLOR, DEFAULT_COLOR
         if done:
             break
 
-    for i in range(len(bars)):
-        bars[i].color = "#00ff00"
-        draw_bars(bars, f"{iteration}.jpg")
-        iteration += 1
+    finish(bars)
+
 
 def build_video():
     subprocess.run(
         ["powershell", "-ExecutionPolicy", "Bypass", "-File", "build_video.ps1"],
         check=True
     )
+
 
 def main():
     bubble_sort()
