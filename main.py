@@ -90,16 +90,19 @@ def bubble_sort():
     finish(bars)
 
 
-def build_video():
-    subprocess.run(
-        ["powershell", "-ExecutionPolicy", "Bypass", "-File", "build_video.ps1"],
-        check=True
-    )
+def build_video(framerate):
+    subprocess.run([
+        "powershell",
+        "-NoProfile",
+        "-ExecutionPolicy", "Bypass",
+        "-File", "make_video.ps1",
+        str(framerate)
+    ], check=True)
 
 
 def main():
     bubble_sort()
-    build_video()
+    build_video(60)
 
 
 if __name__ == "__main__":
