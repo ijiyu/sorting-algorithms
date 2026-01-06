@@ -4,14 +4,18 @@ from tkinter import ttk
 root = tk.Tk()
 
 root.title("Sorting Algorithms")
-root.geometry("500x300")
 
-n = tk.StringVar()
-sorting_types = ["Bubble", "Insertion"]
-sorting_type = ttk.Combobox(root, width=27, textvariable=n, values=sorting_types)
-sorting_type.pack()
+frame = tk.Frame(root)
+frame.pack()
 
-build = tk.Button(root, text="Build", width=10)
-build.pack()
+sorting_type_frame = tk.LabelFrame(frame, text="Sorting Algorithm")
+sorting_type_frame.grid(row=0, column=0, padx=20, pady=10)
+
+sorting_label = tk.Label(sorting_type_frame, text="Type")
+sorting_combobox = ttk.Combobox(sorting_type_frame, values=["Bubble", "Insertion"])
+sorting_label.grid(row=0, column=0, padx=5, pady=5)
+sorting_combobox.grid(row=0, column=1, padx=5)
+
+
 
 root.mainloop()
